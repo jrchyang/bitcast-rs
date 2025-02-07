@@ -1,9 +1,9 @@
+use log::error;
+use parking_lot::RwLock;
 use std::fs::OpenOptions;
 use std::io::Write;
 use std::path::PathBuf;
 use std::{fs::File, os::unix::fs::FileExt, sync::Arc};
-use parking_lot::RwLock;
-use log::error;
 
 use crate::error::{Errors, Result};
 use crate::fio::IOManager;
@@ -20,14 +20,17 @@ impl FileIO {
             .read(true)
             .write(true)
             .append(true)
-            .open(file_name) {
-            Ok(file) => return Ok(
-                FileIO {fd: Arc::new(RwLock::new(file))}
-            ),
+            .open(file_name)
+        {
+            Ok(file) => {
+                return Ok(FileIO {
+                    fd: Arc::new(RwLock::new(file)),
+                })
+            }
             Err(e) => {
                 error!("failed to open data file: {}", e);
                 Err(Errors::FailedToOpenDataFile)
-            },
+            }
         }
     }
 }
@@ -77,7 +80,7 @@ mod tests {
     #[test]
     fn test_file_io_write() {
         let path = PathBuf::from("/tmp/a.data");
-        let file_res= FileIO::new(path.clone());
+        let file_res = FileIO::new(path.clone());
         assert!(file_res.is_ok());
         let fio = file_res.unwrap();
 
@@ -96,7 +99,7 @@ mod tests {
     #[test]
     fn test_file_io_read() {
         let path = PathBuf::from("/tmp/b.data");
-        let file_res= FileIO::new(path.clone());
+        let file_res = FileIO::new(path.clone());
         assert!(file_res.is_ok());
         let fio = file_res.unwrap();
 
@@ -121,7 +124,7 @@ mod tests {
     #[test]
     fn test_file_io_sync() {
         let path = PathBuf::from("/tmp/c.data");
-        let file_res= FileIO::new(path.clone());
+        let file_res = FileIO::new(path.clone());
         assert!(file_res.is_ok());
         let fio = file_res.unwrap();
 

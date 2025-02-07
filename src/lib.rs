@@ -1,4 +1,7 @@
-mod index;
 mod data;
-mod fio;
 mod error;
+mod fio;
+mod index;
+
+pub mod db;
+pub mod options;
